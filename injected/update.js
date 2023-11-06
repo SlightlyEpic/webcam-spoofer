@@ -1,15 +1,17 @@
 async function updateStreams() {
-    console.warn('Updating webcam videos');
+    if(__VERBOSE >= 1) console.log('Updating webcam videos');
 
-    console.warn('Generating stream...');
+    if(__VERBOSE >= 2) console.log('Generating stream...');
     let stream = await navigator.mediaDevices.getUserMedia({})
     currStream = stream;
-    console.warn('Stream generated');
+    if(__VERBOSE >= 2) console.log('Stream generated');
 
-    console.warn('Replacing targets');
-    console.warn('Targets: ', spoofingTargets)
+    if(__VERBOSE >= 2) {
+        console.log('Replacing targets');
+        console.log('Targets: ', spoofingTargets)
+    }
     for(let elm of spoofingTargets) {
-        console.warn(`Replaced video of: `, elm);
+        if(__VERBOSE >= 2) console.log  (`Replaced video of: `, elm);
         elm.srcObject = stream;
     }
 }

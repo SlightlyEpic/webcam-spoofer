@@ -8,6 +8,7 @@ spoofVideo.muted = true;
 spoofVideo.style.display = 'none';
 
 const scriptsToInject = [
+    `chrome-extension://${extId}/injected/globalConfig.js`,
     // `chrome-extension://${extId}/injected/renamer.js`,
     `chrome-extension://${extId}/injected/spoofer.js`,
     `chrome-extension://${extId}/injected/setter.js`,

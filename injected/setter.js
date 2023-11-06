@@ -18,9 +18,11 @@ Object.defineProperty(HTMLMediaElement.prototype, 'srcObject', {
 
         const tracks = stream.getTracks();
 
-        console.warn(tracks.some(t => deviceLabels.includes(t.label)));
-        console.warn(tracks);
-        console.warn(tracks.map(t => t.label));
+        if(__VERBOSE >= 2) {
+            console.log(tracks.some(t => deviceLabels.includes(t.label)));
+            console.log(tracks);
+            console.log(tracks.map(t => t.label));
+        }
 
         if(tracks.some(t => deviceLabels.includes(t.label))) {
             // This element is a spoofing target
