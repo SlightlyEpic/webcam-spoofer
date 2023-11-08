@@ -1,11 +1,18 @@
 const realSrcObjectSetter = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'srcObject').set;
 
 let deviceLabels = [];
-navigator.mediaDevices.enumerateDevices()
-.then(devices => {
-    deviceLabels = devices.map(d => d.label);
-})
-.catch(console.error);
+let trySetDeviceLabels = () => {
+    navigator.mediaDevices.enumerateDevices()
+    .then(devices => {
+        deviceLabels = devices.map(d => d.label).filter(label => label.length > 0);
+        if(deviceLabels.length === 0) setTimeout(trySetDeviceLabels, 1000);
+    })
+    .catch(err => {
+        if(__VERBOSE >= 2) console.error(err);
+        setTimeout(trySetDeviceLabels, 1000);
+    });
+}
+trySetDeviceLabels();
 
 let spoofingTargets = [];
 let currUid = 1;
