@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script defer src="/popup/verify.js"></script>
+</head>
+
+<body>
+    <style>
+        * {
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: rgb(1, 1, 65);
+            padding: 0.5rem;
+        }
+
+        #verifyInputContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 7rem;
+            width: 16rem;
+            gap: 0.5rem;
+        }
+
+        #keyInput {
+            width: 100%;
+            height: 3rem;
+            background-color: white;
+            color: black;
+            font-size: small;
+            font-family: monospace;
+        }
+
+        #verifyButton {
+            width: 100%;
+            height: 3rem;
+            background-color: brown;
+            color: white;
+            font-family: monospace;
+        }
+
+        #status {
+            max-height: 2rem;
+            color: white;
+            text-align: center;
+        }
+    </style>
+
+    <div id="verifyContainer">
+        <div id="verifyInputContainer">
+            <input type="text" id="keyInput" placeholder="ABCDEF-123456-ghijkl-789012-MNOPQR-34567">
+            <button id="verifyButton">Verify</button>
+        </div>
+        <div id="status"></div>
+    </div>
+
+    <div id="mainContainer" style="display: none;">
+
+    </div>
+</body>
+
+</html>
