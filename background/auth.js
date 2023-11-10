@@ -21,6 +21,10 @@ function tryInitialize() {
                 accept: 'application/json',
                 Host: 'keyauth.win',
                 'content-type': 'application/x-www-form-urlencoded',
+                'Sec-Fetch-Site': 'cross-site',
+                'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8',
+                'Origin': 'https://www.google.com',
+                'Referer': 'https://www.google.com/'
             }
         };
 
