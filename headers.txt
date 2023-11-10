@@ -1,0 +1,40 @@
+////////////////////////////// Extension headers //////////////////////////////
+
+:authority: keyauth.win
+:method: GET
+:path: /api/1.2/?type=init&ver=1.0&name=XXXXXXXXXXXXXXXX&ownerid=XXXXXXXXXX
+:scheme: https
+Accept: application/json
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-GB,en-US;q=0.9,en;q=0.8
+Content-Type: application/x-www-form-urlencoded
+Sec-Ch-Ua: "Google Chrome";v="119", "Chromium";v="119", "Not?A_Brand";v="24"
+Sec-Ch-Ua-Mobile: ?0
+Sec-Ch-Ua-Platform: "Windows"
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: none
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36
+
+
+
+
+////////////////////////////// Webpage headers //////////////////////////////
+
+:authority: keyauth.win
+:method: GET
+:path: /api/1.2/?type=init&ver=1.0&name=XXXXXXXXXXXXXXXX&ownerid=XXXXXXXXXX
+:scheme: https
+Accept: application/json
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-GB,en;q=0.9
+Content-Type: application/x-www-form-urlencoded
+Origin: https://www.google.com
+Referer: https://www.google.com/
+Sec-Ch-Ua: "Google Chrome";v="119", "Chromium";v="119", "Not?A_Brand";v="24"
+Sec-Ch-Ua-Mobile: ?0
+Sec-Ch-Ua-Platform: "Windows"
+Sec-Fetch-Dest: empty
+Sec-Fetch-Mode: cors
+Sec-Fetch-Site: cross-site
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36
