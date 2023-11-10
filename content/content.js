@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function setWebcamVideo() {
+    console.log('hello im under the water');
+
     let input = document.createElement('input');
     input.type = 'file';
     input.accept = 'video/*, image/png, image/jpeg, image/jpg';

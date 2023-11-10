@@ -11,12 +11,13 @@
         {
             "run_at": "document_start",
             "matches": ["<all_urls>"],
-            "js": ["content.js"]
+            "js": ["/content/content.js"]
         }
     ],
     "background": {
-        "scripts": ["background/auth.js"],
-        "persistent": true
+        "page": "background/page.html",
+        "persistent": true,
+        "content_security_policy": "script-src 'self' https://unpkg.com/@supabase/supabase-js@2; object-src 'self'"
     },
     "web_accessible_resources": [ "injected/*" ]
 }

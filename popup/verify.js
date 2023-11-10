@@ -1,8 +1,8 @@
-document.addEventListener('load', () => {
+let loadCb = () => {
     // Send isVerified message to auth.js
     chrome.runtime.sendMessage({ message: 'isVerified' }, res => {
         if(!res.success) return statusError(res.error);
-        if(res.verified) showMain();
+        if(res.verified) return showMain();
 
         statusWarn('Trying to auto verify...');
         chrome.runtime.sendMessage({ message: 'autoVerify' }, res => {
@@ -11,28 +11,38 @@ document.addEventListener('load', () => {
             statusSuccess('Verified!');
             showMain();
         });
-    })
-});
+    });
 
-document.getElementById('verifyButton').addEventListener('click', () => {
-    let key = document.getElementById('keyInput').value;
-    let status = document.getElementById('status');
+    document.getElementById('verifyButton').addEventListener('click', () => {
+        let key = document.getElementById('keyInput').value;
+        let status = document.getElementById('status');
+    
+        if(key) {
+            statusWarn('Verifying...');
+    
+            // Send verify message to auth.js
+            chrome.runtime.sendMessage({ message: 'verify', licenseKey: key }, res => {
+    
+                if(!res.success) return statusError(res.error);
+                if(!res.verified) return statusError('Invalid key');
+    
+                statusSuccess('Verified!');
+                showMain();
+            });
+        } else {
+            statusError('Please enter a key');
+            console.warn(status.innerText);
+        }
+    });
+};
 
-    if(key) {
-        statusWarn('Verifying...');
+// The event doesnt fire for whatever reason
+// if(document.readyState !== 'loading') loadCb();
+// else document.addEventListener('load', loadCb);
 
-        // Send verify message to auth.js
-        chrome.runtime.sendMessage({ message: 'verify', licenseKey: key }, res => {
-            if(!res.success) return statusError(res.error);
+setTimeout(loadCb, 100);
 
-            statusSuccess('Verified!');
-            showMain();
-        })
-    } else {
-        statusError('Please enter a key');
-        console.warn(status.innerText);
-    }
-});
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function statusError(err) {
     let status = document.getElementById('status');
@@ -59,5 +69,5 @@ function showVerify() {
 
 function showMain() {
     document.getElementById('verifyContainer').style.display = 'none';
-    document.getElementById('mainContainer').style.display = 'block';
+    document.getElementById('mainContainer').style.display = 'flex';
 }

@@ -1,4 +1,4 @@
-document.getElementById('upload').addEventListener('click', () => {
+document.getElementById('uploadMedia').addEventListener('click', () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         chrome.tabs.executeScript(
             tabs[0].id,
@@ -6,3 +6,5 @@ document.getElementById('upload').addEventListener('click', () => {
         );
     });
 });
+
+console.log('listener added');
