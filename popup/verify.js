@@ -1,14 +1,21 @@
+let popGlob = {};
+
 // Send isVerified message to auth.js
 chrome.runtime.sendMessage({ message: 'isVerified' }, res => {
-    if(!res.success) return statusError(res.error);
-    if(res.verified) return showMain();
+    console.log('isVerified request: ', res);
 
-    statusWarn('Trying to auto verify...');
+    if(!res.success) return popGlob.statusError(res.error);
+
+    console.log(res.verified);
+    if(res.verified) return popGlob.showMain();
+    console.log('a');
+
+    popGlob.statusWarn('Trying to auto verify...');
     chrome.runtime.sendMessage({ message: 'autoVerify' }, res => {
-        if(!res.success) return statusError(res.error);
+        if(!res.success) return popGlob.statusError(res.error);
         
-        statusSuccess('Verified!');
-        showMain();
+        popGlob.statusSuccess('Verified!');
+        popGlob.showMain();
     });
 });
 
@@ -17,49 +24,56 @@ document.getElementById('verifyButton').addEventListener('click', () => {
     let status = document.getElementById('status');
 
     if(key) {
-        statusWarn('Verifying...');
+        popGlob.statusWarn('Verifying...');
 
         // Send verify message to auth.js
         chrome.runtime.sendMessage({ message: 'verify', licenseKey: key }, res => {
 
-            if(!res.success) return statusError(res.error);
-            if(!res.verified) return statusError('Invalid key');
+            if(!res.success) return popGlob.statusError(res.error);
+            if(!res.verified) return popGlob.statusError('Invalid key');
 
-            statusSuccess('Verified!');
-            showMain();
+            popGlob.statusSuccess('Verified!');
+            popGlob.showMain();
         });
     } else {
-        statusError('Please enter a key');
+        popGlob.statusError('Please enter a key');
         console.warn(status.innerText);
     }
 });
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function statusError(err) {
+popGlob.statusError = (err) => {
     let status = document.getElementById('status');
     status.style.color = 'red';
     status.innerText = err;
 }
 
-function statusWarn(msg) {
+popGlob.statusWarn = (msg) => {
     let status = document.getElementById('status');
     status.style.color = 'yellow';
     status.innerText = msg;
 }
 
-function statusSuccess(msg) {
+popGlob.statusSuccess = (msg) => {
     let status = document.getElementById('status');
     status.style.color = 'green';
     status.innerText = msg;
 }
 
-function showVerify() {
+popGlob.showVerify = () => {
     document.getElementById('verifyContainer').style.display = 'block';
     document.getElementById('mainContainer').style.display = 'none';
 }
 
-function showMain() {
+popGlob.showMain = () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        chrome.tabs.executeScript(
+            tabs[0].id,
+            { code: 'cGlob.updateVerifyStatus();' }
+        );
+    });
+
     document.getElementById('verifyContainer').style.display = 'none';
     document.getElementById('mainContainer').style.display = 'flex';
 }

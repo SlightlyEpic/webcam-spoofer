@@ -1,13 +1,15 @@
-const __VERBOSE = 1;
+let injGlob = {};
 
-const spLogger = {
+injGlob.__VERBOSE = 1;
+
+injGlob.spLogger = {
     log: (level, ...args) => {
-        if(__VERBOSE >= level) console.log(...args);
+        if(injGlob.__VERBOSE >= level) console.log(...args);
     },
     warn: (level, ...args) => {
-        if(__VERBOSE >= level) console.warn(...args);
+        if(injGlob.__VERBOSE >= level) console.warn(...args);
     },
     error: (level, ...args) => {
-        if(__VERBOSE >= level) console.error(...args);
+        if(injGlob.__VERBOSE >= level) console.error(...args);
     },
 }

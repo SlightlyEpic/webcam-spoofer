@@ -1,54 +1,61 @@
-const UNIVERSAL_PASSWORD = '7CEB54C43E9FD1E91379A77F39D2E';
+let bgGlob = {};
 
-let isVerified = false;
-let activeLicenseKey = null;
+bgGlob.UNIVERSAL_PASSWORD = '7CEB54C43E9FD1E91379A77F39D2E';
 
-const client = supabase.createClient('https://wzckrfrmhqevymvydfym.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6Y2tyZnJtaHFldnltdnlkZnltIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTk2MzIwMjYsImV4cCI6MjAxNTIwODAyNn0.75XRzoYmqd9OKdV7P75YFa0L8RKKj4NuDJ52kjXuFN0');
+bgGlob.isVerified = false;
+bgGlob.activeLicenseKey = null;
+
+bgGlob.client = supabase.createClient('https://wzckrfrmhqevymvydfym.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6Y2tyZnJtaHFldnltdnlkZnltIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTk2MzIwMjYsImV4cCI6MjAxNTIwODAyNn0.75XRzoYmqd9OKdV7P75YFa0L8RKKj4NuDJ52kjXuFN0');
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-async function tryAutoVerify() {
-    chrome.storage.local.get(['verifyKey'], async result => {
-        if(chrome.runtime.lastError) throw chrome.runtime.lastError;
-        if(!('verifyKey' in result)) throw 'Verify key not in storage';
+bgGlob.tryAutoVerify = () => {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get(['verifyKey'], result => {
+            if(chrome.runtime.lastError) reject(chrome.runtime.lastError);
+            if(!('verifyKey' in result)) reject('Verify key not in storage');
 
-        let key = result.verifyKey;
+            let key = result.verifyKey;
 
-        let { data, error } = await client.auth.signInWithPassword({
-            email: `${key}@veri.fy`,
-            password: UNIVERSAL_PASSWORD
+            bgGlob.client.auth.signInWithPassword({
+                email: `${key}@veri.fy`,
+                password: bgGlob.UNIVERSAL_PASSWORD
+            })
+            .then(({ data, error }) => {
+
+                if(error) {
+                    bgGlob.isVerified = false;
+                    bgGlob.activeLicenseKey = null;
+                    chrome.storage.local.remove('verifyKey', () => {});
+                    reject(error);
+                }
+
+                try { bgGlob.client.auth.signOut() } catch(err) {}
+
+                console.log(data);
+
+                bgGlob.isVerified = true;
+                bgGlob.activeLicenseKey = key;
+                resolve(data);
+            })
+            .catch(reject)
         });
-
-        if(error) {
-            isVerified = false;
-            activeLicenseKey = null;
-            chrome.stoage.local.remove('verifyKey', () => {});
-            throw error;
-        }
-
-        try { await client.auth.signOut() } catch(err) {}
-
-        console.log(data);
-
-        isVerified = true;
-        activeLicenseKey = key;
-        return data;
     });
 }
 
-async function tryVerify(licenseKey) {
+bgGlob.tryVerify = async (licenseKey) => {
     if(!licenseKey) throw Error('licenseKey is invalid');
     
-    let { data, error } = await client.auth.signInWithPassword({
+    let { data, error } = await bgGlob.client.auth.signInWithPassword({
         email: `${licenseKey}@veri.fy`,
-        password: UNIVERSAL_PASSWORD
+        password: bgGlob.UNIVERSAL_PASSWORD
     });
 
     if(error) throw error.message;
     if(!data) throw 'Invalid login';
 
-    isVerified = true;
-    activeLicenseKey = licenseKey;
+    bgGlob.isVerified = true;
+    bgGlob.activeLicenseKey = licenseKey;
     console.log(data);
 
     chrome.storage.local.set({ verifyKey: licenseKey }, () => {
@@ -59,7 +66,7 @@ async function tryVerify(licenseKey) {
         }
     });
     
-    try { await client.auth.signOut() } catch(err) {}
+    try { bgGlob.client.auth.signOut() } catch(err) {}
 
     return data;
 }
@@ -76,7 +83,7 @@ chrome.runtime.onMessage.addListener((req, sender, _sendRes) => {
 
     switch(req.message) {
         case 'autoVerify':
-            tryAutoVerify()
+            bgGlob.tryAutoVerify()
             .then(() => {
                 sendRes({
                     success: true,
@@ -93,7 +100,7 @@ chrome.runtime.onMessage.addListener((req, sender, _sendRes) => {
             break;
         
         case 'verify':
-            tryVerify(req.licenseKey)
+            bgGlob.tryVerify(req.licenseKey)
             .then(() => {
                 sendRes({
                     success: true,
@@ -112,7 +119,7 @@ chrome.runtime.onMessage.addListener((req, sender, _sendRes) => {
         case 'isVerified':
             sendRes({ 
                 success: true, 
-                verified: isVerified,
+                verified: bgGlob.isVerified,
                 message: 'Verified!'
             });
             break;
@@ -127,5 +134,3 @@ chrome.runtime.onMessage.addListener((req, sender, _sendRes) => {
 
     return true;
 });
-
-console.log('Hello');

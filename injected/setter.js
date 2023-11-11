@@ -1,47 +1,46 @@
-const realSrcObjectSetter = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'srcObject').set;
+injGlob.realSrcObjectSetter = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'srcObject').set;
 
-let deviceLabels = [];
-let trySetDeviceLabels = () => {
+injGlob.deviceLabels = [];
+injGlob.trySetDeviceLabels = () => {
     navigator.mediaDevices.enumerateDevices()
     .then(devices => {
-        deviceLabels = devices.map(d => d.label).filter(label => label.length > 0);
-        if(deviceLabels.length === 0) setTimeout(trySetDeviceLabels, 1000);
+        injGlob.deviceLabels = devices.map(d => d.label).filter(label => label.length > 0);
+        if(injGlob.deviceLabels.length === 0) setTimeout(injGlob.trySetDeviceLabels, 1000);
     })
     .catch(err => {
-        spLogger.error(2, err);
-        setTimeout(trySetDeviceLabels, 1000);
+        injGlob.spLogger.error(2, err);
+        setTimeout(injGlob.trySetDeviceLabels, 1000);
     });
 }
-trySetDeviceLabels();
+injGlob.trySetDeviceLabels();
 
-let spoofingTargets = [];
-let currUid = 1;
-
+injGlob.spoofingTargets = [];
+injGlob.currUid = 1;
 
 Object.defineProperty(HTMLMediaElement.prototype, 'srcObject', {
     async set(stream) {
-        realSrcObjectSetter.call(this, stream);
+        injGlob.realSrcObjectSetter.call(this, stream);
         if(!stream) return;
 
         const tracks = stream.getTracks();
 
-        spLogger.log(2, tracks.some(t => deviceLabels.includes(t.label)));
-        spLogger.log(2, tracks);
-        spLogger.log(2, tracks.map(t => t.label));
+        injGlob.spLogger.log(2, tracks.some(t => injGlob.deviceLabels.includes(t.label)));
+        injGlob.spLogger.log(2, tracks);
+        injGlob.spLogger.log(2, tracks.map(t => t.label));
 
-        if(tracks.some(t => deviceLabels.includes(t.label))) {
+        if(tracks.some(t => injGlob.deviceLabels.includes(t.label))) {
             // This element is a spoofing target
             if(!this.hasAttribute('spoof-uid')) {
-                this.setAttribute('spoof-uid', `${currUid}`);
-                spoofingTargets.push(this);
+                this.setAttribute('spoof-uid', `${injGlob.currUid}`);
+                injGlob.spoofingTargets.push(this);
             }
 
-            if(spoofedStreamIds.has(stream.id)) {
-                realSrcObjectSetter.call(this, spoofed);
+            if(injGlob.spoofedStreamIds.has(stream.id)) {
+                injGlob.realSrcObjectSetter.call(this, spoofed);
             } else {
                 await navigator.mediaDevices.getUserMedia({ video: true })
                 .then(spoofed => {
-                    realSrcObjectSetter.call(this, spoofed);
+                    injGlob.realSrcObjectSetter.call(this, spoofed);
                 });
             }
         }

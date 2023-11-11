@@ -1,38 +1,46 @@
-let extId = chrome.runtime.id;
+let cGlob = {};
 
-let spoofVideo = document.createElement('video');
-spoofVideo.setAttribute('id', 'spoofVideo');
-spoofVideo.preload = 'auto';
-spoofVideo.autoplay = true;
-spoofVideo.muted = true;
-spoofVideo.style.display = 'none';
+cGlob.extId = chrome.runtime.id;
+
+cGlob.spoofVideo = document.createElement('video');
+cGlob.spoofVideo.setAttribute('id', 'spoofVideo');
+cGlob.spoofVideo.preload = 'auto';
+cGlob.spoofVideo.autoplay = true;
+cGlob.spoofVideo.muted = true;
+cGlob.spoofVideo.style.display = 'none';
 
 const scriptsToInject = [
-    `chrome-extension://${extId}/injected/logger.js`,
+    `chrome-extension://${cGlob.extId}/injected/logger.js`,
     // `chrome-extension://${extId}/injected/renamer.js`,
-    `chrome-extension://${extId}/injected/spoofer.js`,
-    `chrome-extension://${extId}/injected/setter.js`,
-    `chrome-extension://${extId}/injected/update.js`,
+    `chrome-extension://${cGlob.extId}/injected/spoofer.js`,
+    `chrome-extension://${cGlob.extId}/injected/setter.js`,
+    `chrome-extension://${cGlob.extId}/injected/update.js`,
 ];
 
-document.addEventListener('DOMContentLoaded', () => {
+cGlob.isLoaded = false;
+
+cGlob.loadCallback = () => {
     chrome.runtime.sendMessage({ message: 'isVerified' }, res => {
         if(!res.success) return;
         if(!res.verified) return;
 
-        document.body.appendChild(spoofVideo);
+        cGlob.isLoaded = true;
+        document.body.appendChild(cGlob.spoofVideo);
         
         for(let script of scriptsToInject) {
             let scriptElm = document.createElement('script');
             scriptElm.src = script;
+            scriptElm.defer = true;
 
             document.head.appendChild(scriptElm);
             console.log(`Injected: ${script}`);
         }
     });
-});
+}
 
-function setWebcamVideo() {
+document.addEventListener('DOMContentLoaded', cGlob.loadCallback);
+
+cGlob.setWebcamVideo = () => {
     chrome.runtime.sendMessage({ message: 'isVerified' }, res => {
         if(!res.success) return;
         if(!res.verified) return;
@@ -47,15 +55,15 @@ function setWebcamVideo() {
                 console.warn('Recived new file');
                 let blobUrl = URL.createObjectURL(file);
                 console.warn('Blob url created: ', blobUrl);
-                spoofVideo.src = blobUrl;
+                cGlob.spoofVideo.src = blobUrl;
                 // spoofVideo.setAttribute('spoofSrc', blobUrl);
 
                 let imageTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-                if(imageTypes.includes(file.type)) spoofVideo.setAttribute('for', 'image');
-                else spoofVideo.setAttribute('for', 'video');
+                if(imageTypes.includes(file.type)) cGlob.spoofVideo.setAttribute('for', 'image');
+                else cGlob.spoofVideo.setAttribute('for', 'video');
 
-                updateWebcamVideo();
-                // setTimeout(updateWebcamVideo, 1000);
+                cGlob.updateWebcamVideo();
+                // setTimeout(cGlob.updateWebcamVideo, 1000);
             }
         });
 
@@ -63,9 +71,14 @@ function setWebcamVideo() {
     });
 }
 
-function updateWebcamVideo() {
+cGlob.updateWebcamVideo = () => {
     let scr = document.createElement('script');
-    scr.innerHTML = 'updateStreams();';
+    scr.innerHTML = 'injGlob.updateStreams();';
     document.head.appendChild(scr);
     document.head.removeChild(scr);
+}
+
+cGlob.updateVerifyStatus = () => {
+    if(cGlob.isLoaded) return;
+    cGlob.loadCallback();
 }

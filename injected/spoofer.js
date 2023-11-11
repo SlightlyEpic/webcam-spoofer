@@ -2,11 +2,11 @@ if (!window.originalGetUserMedia) {
     window.originalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
 }
 
-let spoofedStreamIds = new Set();
-let currStream = null;
+injGlob.spoofedStreamIds = new Set();
+injGlob.currStream = null;
 
 navigator.mediaDevices.getUserMedia = async constraints => {
-    spLogger.log(2, 'User media requested');
+    injGlob.spLogger.log(2, 'User media requested');
 
     try {
         let element = document.getElementById('spoofVideo');
@@ -14,14 +14,14 @@ navigator.mediaDevices.getUserMedia = async constraints => {
         let blobUrl = element.src;
         
         if(!blobUrl) {
-            spLogger.warn(1, 'Spoof source was not provided, defaulting to webcam');
+            injGlob.spLogger.warn(1, 'Spoof source was not provided, defaulting to webcam');
             return window.originalGetUserMedia(constraints);
         }
 
         let type = element.getAttribute('for');
 
         if(type === 'video') {
-            spLogger.log(2, 'Sending video stream');
+            injGlob.spLogger.log(2, 'Sending video stream');
 
             let stream;
             
@@ -29,20 +29,20 @@ navigator.mediaDevices.getUserMedia = async constraints => {
             videoElement.loop = true;
             videoElement.crossOrigin = '';
 
-            spLogger.log(2, 'playing video');
+            injGlob.spLogger.log(2, 'playing video');
             videoElement.play();
-            spLogger.log(2, 'video played');
+            injGlob.spLogger.log(2, 'video played');
 
             if (videoElement.captureStream)         stream = videoElement.captureStream();
             else if(videoElement.mozCaptureStream)  stream = videoElement.mozCaptureStream();
             else                                    throw new Error('Cannot spoof due to incompatible browser');
 
-            spLogger.log(1, 'Override success!');
+            injGlob.spLogger.log(1, 'Override success!');
             
-            spoofedStreamIds.add(stream.id);
-            currStream = stream;
+            injGlob.spoofedStreamIds.add(stream.id);
+            injGlob.currStream = stream;
 
-            spLogger.log(2, 'Returning user media');
+            injGlob.spLogger.log(2, 'Returning user media');
             return stream;
         } else {
             let canvas = document.createElement('canvas');
@@ -69,12 +69,12 @@ navigator.mediaDevices.getUserMedia = async constraints => {
             draw();
             let stream = canvas.captureStream();
 
-            spLogger.log(1, 'Override success!');
-            currStream = stream;
+            injGlob.spLogger.log(1, 'Override success!');
+            injGlob.currStream = stream;
             return stream;
         }
     } catch (t) {
-        spLogger.error(1, `Failed to create a stream from your media: `, t);
+        injGlob.spLogger.error(1, `Failed to create a stream from your media: `, t);
 
         return window.originalGetUserMedia(constraints);
     }
