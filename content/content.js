@@ -16,43 +16,51 @@ const scriptsToInject = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.body.appendChild(spoofVideo);
-    
-    for(let script of scriptsToInject) {
-        let scriptElm = document.createElement('script');
-        scriptElm.src = script;
+    chrome.runtime.sendMessage({ message: 'isVerified' }, res => {
+        if(!res.success) return;
+        if(!res.verified) return;
 
-        document.head.appendChild(scriptElm);
-        console.log(`Injected: ${script}`);
-    }
+        document.body.appendChild(spoofVideo);
+        
+        for(let script of scriptsToInject) {
+            let scriptElm = document.createElement('script');
+            scriptElm.src = script;
+
+            document.head.appendChild(scriptElm);
+            console.log(`Injected: ${script}`);
+        }
+    });
 });
 
 function setWebcamVideo() {
-    console.log('hello im under the water');
+    chrome.runtime.sendMessage({ message: 'isVerified' }, res => {
+        if(!res.success) return;
+        if(!res.verified) return;
 
-    let input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'video/*, image/png, image/jpeg, image/jpg';
+        let input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'video/*, image/png, image/jpeg, image/jpg';
 
-    input.addEventListener('change', () => {
-        let file = input.files[0];
-        if(file) {
-            console.warn('Recived new file');
-            let blobUrl = URL.createObjectURL(file);
-            console.warn('Blob url created: ', blobUrl);
-            spoofVideo.src = blobUrl;
-            // spoofVideo.setAttribute('spoofSrc', blobUrl);
+        input.addEventListener('change', () => {
+            let file = input.files[0];
+            if(file) {
+                console.warn('Recived new file');
+                let blobUrl = URL.createObjectURL(file);
+                console.warn('Blob url created: ', blobUrl);
+                spoofVideo.src = blobUrl;
+                // spoofVideo.setAttribute('spoofSrc', blobUrl);
 
-            let imageTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-            if(imageTypes.includes(file.type)) spoofVideo.setAttribute('for', 'image');
-            else spoofVideo.setAttribute('for', 'video');
+                let imageTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+                if(imageTypes.includes(file.type)) spoofVideo.setAttribute('for', 'image');
+                else spoofVideo.setAttribute('for', 'video');
 
-            updateWebcamVideo();
-            // setTimeout(updateWebcamVideo, 1000);
-        }
+                updateWebcamVideo();
+                // setTimeout(updateWebcamVideo, 1000);
+            }
+        });
+
+        input.click();
     });
-
-    input.click();
 }
 
 function updateWebcamVideo() {
