@@ -1,0 +1,25 @@
+{
+    "manifest_version": 3,
+    "name": "Webcam Spoofer v2",
+    "version": "2.0.0",
+    "action": {
+        "default_popup": "index.html"
+    },
+    "content_scripts": [
+        {
+            "run_at": "document_start",
+            "matches": ["<all_urls>"],
+            "js": ["/content/content.js"]
+        }
+    ],
+    "background": {
+        "page": "background/index.js",
+        "persistent": true
+    },
+    "web_accessible_resources": [
+        {
+            "resources": ["injected/*"],
+            "matches": ["<all_urls>"]
+        }
+    ]
+}
